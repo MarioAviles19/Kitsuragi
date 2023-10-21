@@ -1,0 +1,3 @@
+/home/mario/Kitsuragi/Build/CMakeFiles/kitsuragi.dir
+/home/mario/Kitsuragi/Build/CMakeFiles/edit_cache.dir
+/home/mario/Kitsuragi/Build/CMakeFiles/rebuild_cache.dir
