@@ -3,17 +3,10 @@
 #include <sstream>
 #include <vector>
 
-enum class TokenType{
 
-    _return,
-    int_lit,
-    semi
-};
+#include "./tokenization.hpp"
 
-struct Token {
-    TokenType type;
-    std::string value;
-};
+
 
 std::vector<Token> Tokenize(const std::string& str){
 
@@ -32,14 +25,32 @@ std::vector<Token> Tokenize(const std::string& str){
             }
 
             i--;
-
-            if(buf == "return"){
-                Token token = {.type = TokenType::_return};
-                tokens.push_back({.type = TokenType::_return, .value = "ret"});
-            } else {
+            //Check for token
+            if(buf == "exit"){
+                Token token = {.type = TokenType::exit};
+                tokens.push_back({.type = TokenType::exit, .value = "return"});
+            }  else {
                 std::cerr << "Unknown token " << buf << std::endl;
                 exit(1);
             }
+                buf.clear();
+        } else if(std::isdigit(c)){
+            buf.push_back(c);
+            i++;
+            while (std::isdigit(str.at(i))){
+                buf.push_back(str.at(i));
+                i++;
+            }
+            i--;
+
+            tokens.push_back({.type = TokenType::int_lit, .value = buf});
+            buf.clear();
+
+        } else if(c == ';'){
+            tokens.push_back({.type = TokenType::semi, .value = "semi"});
+        } 
+        else if(std::isspace(c)){
+            continue;
         }
     }
 
@@ -50,9 +61,14 @@ std::vector<Token> Tokenize(const std::string& str){
 
 int main(int argc, char* argv[]){
 
+
+    std::cout << argc << std::endl;
+
     if(argc != 2){
         std::cerr << "Incorrect usage. Correct usage is..." << std::endl;
         std::cerr << "kitsuragi <input.kim>" << std::endl;
+
+        
         return 1;
     }
 
@@ -66,6 +82,13 @@ int main(int argc, char* argv[]){
     }
 
     std::string contents = contents_stream.str();
-    std::cout << Tokenize(contents)[0].value << std::endl;
-    return 0;
+
+
+    std::vector<Token> tokens = Tokenize(contents);
+
+    for(int i = 0; i < tokens.size(); i++){
+        std::cout << tokens[i].value << std::endl;
+    }
+
+    return 3;
 }
