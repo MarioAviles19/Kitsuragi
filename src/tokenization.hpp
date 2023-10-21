@@ -29,8 +29,9 @@ class Tokenizer{
 
         }
 
-        std::vector<Token> Tokenize(const std::string& str){
 
+        std::vector<Token> Tokenize(){
+            
             std::string buf;
             std::vector<Token>  tokens;
 
@@ -40,6 +41,7 @@ class Tokenizer{
                     buf.push_back(consume());
 
                     while(peek(1).has_value() && std::isalnum(peek(1).value())){
+                        
                         buf.push_back(consume());
 
                     };
@@ -51,8 +53,8 @@ class Tokenizer{
                         buf.clear();
                         continue;
                     } else{
-                        std::cerr << "Unknown token: " << buf;
-                        exit(1);
+                        std::cerr << "Unknown token: " << buf << std::endl;
+                        //exit(1);
                     }
                 }
                 else if(std::isdigit(peek(1).value())){
@@ -67,12 +69,10 @@ class Tokenizer{
                     continue;
                 }
                 else if (peek(1).value() == ';'){
-                    //I don't have to do this
-                    buf.push_back(consume());
+                    consume();
 
                     tokens.push_back({.type = TokenType::semi});
-                    //Don't need this
-                    buf.clear();
+
                 }
                 else if (std::isspace(peek(1).value())){
                     consume();
@@ -86,18 +86,19 @@ class Tokenizer{
 
     private:
 
-        std::optional<char> peek(int offset = 0) const {
+        std::optional<char> peek(int offset = 1) const {
             if(m_index + offset > m_src.length()){
 
                 return {};
             } else{
-                return m_src.at(m_index + offset);
+                return m_src.at(m_index);
             }
         }
 
         char consume(){
-
-            return m_src.at(m_index++);
+            int val = m_index;
+            m_index++;
+            return m_src.at(val);
             
         }
 
