@@ -5,29 +5,10 @@
 
 
 #include "./tokenization.hpp"
+#include "./parser.hpp"
+#include "./generation.hpp"
 
 
-std::string tokens_to_asm(std::vector<Token> tokens){
-    std::stringstream output;
-
-    output << "global _start\n_start:\n";
-    if(tokens.size() == 3){
-        if(tokens[0].type == TokenType::exit && tokens[1].type == TokenType::int_lit && tokens[2].type == TokenType::semi){
-            output << "mov rax, 60" << std::endl;
-            output << "mov rdi, " << tokens[1].value.value() << std::endl;
-            output << "syscall";
-        } else{
-
-            std::cerr << "Unexpected behavior";
-            exit(1);
-        }
-    } else{
-        std::cerr << "Unexpected behavior";
-        exit(1);
-    }
-
-    return output.str();
-}
 
 int main(int argc, char* argv[]){
 
@@ -52,12 +33,23 @@ int main(int argc, char* argv[]){
 
 
     Tokenizer tokenizer(std::move(contents));
+    std::vector<Token> tokens = tokenizer.Tokenize();
 
-    std::string output = tokens_to_asm(tokenizer.Tokenize());
+    Parser parser(std::move(tokens));
+    std::optional<Node_Prog> program = parser.parse_prog();
+
+    if(!program.has_value()){
+        std::cerr << "Invalid program" << std::endl;
+        exit(1);
+    }
+
+
+    Generator generator(program.value());
 
     {
         std::fstream file("out.asm", std::ios::out);
-        file << output;
+        file << generator.gen_prog();
+
     }
     system("nasm -felf64 out.asm");
     system("ld -o test out.o");
