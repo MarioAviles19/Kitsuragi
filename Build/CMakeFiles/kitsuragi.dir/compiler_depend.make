@@ -215,6 +215,7 @@ CMakeFiles/kitsuragi.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/c++/11/bits/invoke.h \
   /usr/include/c++/11/ext/aligned_buffer.h \
   /usr/include/c++/11/bits/parse_numbers.h \
+  ../src/arena.hpp \
   ../src/generation.hpp \
   /usr/include/c++/11/unordered_map \
   /usr/include/c++/11/bits/hashtable.h \
@@ -236,6 +237,8 @@ CMakeFiles/kitsuragi.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/include/c++/11/bits/hashtable_policy.h:
 
 /usr/include/c++/11/bits/hashtable.h:
+
+../src/arena.hpp:
 
 /usr/include/c++/11/bits/parse_numbers.h:
 

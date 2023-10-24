@@ -9,6 +9,7 @@
 enum class TokenType{
 
     exit,
+    print,
     int_lit,
     semi,
     open_paren,
@@ -58,6 +59,11 @@ class Tokenizer{
                     }
                     if(buf == "let"){
                         tokens.push_back({.type = TokenType::let, .value = "let"});
+                        buf.clear();
+                        continue;
+                    } 
+                    if(buf == "print"){
+                        tokens.push_back({.type = TokenType::print, .value = "print"});
                         buf.clear();
                         continue;
                     } else{

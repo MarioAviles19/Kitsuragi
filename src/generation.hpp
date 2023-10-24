@@ -16,7 +16,7 @@ class Generator {
         {
         }
 
-        void gen_expr(const Node_Expr& expr){
+        void gen_expr(const Node_Expr* expr){
 
             
 
@@ -24,16 +24,17 @@ class Generator {
                 
                 Generator* gen;
 
-                void operator()(const Node_Expr_IntLit& expr_int_lit) const{
-                    gen->m_output << "    mov rax," << expr_int_lit.int_lit.value.value() << std::endl;
+                void operator()(const Node_Expr_IntLit* expr_int_lit) const{
+                    gen->m_output << "    mov rax," << expr_int_lit->int_lit.value.value() << std::endl;
                     gen->push("rax");
                 }
-                void operator()(const Node_Expr_Ident& expr_ident){
-                    if(!gen->m_vars.contains(expr_ident.ident.value.value())){
-                        std::cerr << "Use of undeclared identifier: " << expr_ident.ident.value.value() << std::endl;
+                void operator()(const Node_Expr_Ident* expr_ident){
+                    if(!gen->m_vars.contains(expr_ident->ident.value.value())){
+                        std::cerr << "Use of undeclared identifier: " << expr_ident->ident.value.value() << std::endl;
+                        exit(1);
                     }
 
-                    const auto& var = gen->m_vars.at(expr_ident.ident.value.value());
+                    const auto& var = gen->m_vars.at(expr_ident->ident.value.value());
 
                     std::stringstream offset;
 
@@ -43,42 +44,48 @@ class Generator {
 
                     gen->push(offset.str());
                 }
+                void operator()(const Node_Bin_Expr* bin_expr)const{
+
+                }
             };
 
             ExprVisitor visitor {.gen = this};
-            std::visit(visitor, expr.var);
+            std::visit(visitor, expr->var);
 
         }
 
-        void gen_stmt(const Node_Stmt& stmt) {
+        void gen_stmt(const Node_Stmt* stmt) {
 
 
 
             struct StmtVisitor {
                 Generator* gen;
 
-                void operator()(const Node_Stmt_Exit& stmt_exit) const{
-                    gen->gen_expr(stmt_exit.expr);
+                void operator()(const Node_Stmt_Exit* stmt_exit) const{
+                    gen->gen_expr(stmt_exit->expr);
                     gen->m_output << "    mov rax, 60" << std::endl;
                     gen->pop("rdi");
                     gen->m_output << "    syscall" << std::endl;
                 }
-                void operator()(const Node_Stmt_Let& stmt_let){
+                void operator()(const Node_Stmt_Let* stmt_let){
 
-                    if(gen->m_vars.contains(stmt_let.ident.value.value())){
-                        std::cerr << "Identifier already used: " << stmt_let.ident.value.value() << std::endl;
+                    if(gen->m_vars.contains(stmt_let->ident.value.value())){
+                        std::cerr << "Identifier already used: " << stmt_let->ident.value.value() << std::endl;
                         exit(1);
                     }
 
-                    gen->m_vars.insert({stmt_let.ident.value.value(), Var {.stack_loc = gen->m_stack_size}});
-                    gen->gen_expr(stmt_let.expr);
+                    gen->m_vars.insert({stmt_let->ident.value.value(), Var {.stack_loc = gen->m_stack_size}});
+                    gen->gen_expr(stmt_let->expr);
 
 
 
                 }
+                void operator()(const Node_Stmt_Print* stmt_print){
+
+                }
             };
             StmtVisitor visitor {.gen = this};
-            std::visit(visitor,stmt.var);
+            std::visit(visitor,stmt->var);
 
         }
         std::string gen_prog(){
@@ -87,7 +94,7 @@ class Generator {
             m_output << "global _start\n_start:\n";
 
 
-            for (const Node_Stmt& stmt : m_prog.statments){
+            for (const Node_Stmt* stmt : m_prog.statments){
                 gen_stmt(stmt);
             }
 
